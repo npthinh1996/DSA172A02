@@ -43,11 +43,11 @@ public:
 
     virtual bool    find(T& a, int& idx) = 0;
     virtual T*      find(T& a) = 0;
-    virtual T*      find(T& a, std::function<bool (T&, T&)> eqCmp) = 0;
+    virtual T*      find(T& a, bool (*eqCmp)(T&, T&)) = 0;
     virtual int     insert(int i, T& a) = 0;
     virtual int     insert(int i, T&& a) = 0;
     virtual int     remove(int i) = 0;
-    virtual int     remove(T& a, std::function<bool (T&, T&)> eqCmp) = 0;
+    virtual int     remove(T& a, bool (*eqCmp)(T&, T&)) = 0;
 
     virtual int     push_back(T& a) = 0;
     virtual int     push_back(T&& a) = 0;
@@ -56,8 +56,8 @@ public:
     virtual int     removeHead() = 0;
     virtual int     removeLast() = 0;
 
-    virtual void    traverse(std::function<void (T&)> op) = 0;
-    virtual void    traverse(std::function<void (T&, void*)> op, void* pParam) = 0;
+    virtual void    traverse(void (*op)(T&)) = 0;
+    virtual void    traverse(void (*op)(T&, void*), void* pParam) = 0;
 
     virtual void    reverse() = 0;
 };
@@ -68,9 +68,9 @@ struct L1Item {
     L1Item<T> *pNext;
 
     L1Item(T &a) : data(a), pNext(NULL) {}
-    L1Item(T &a, void* next) : data(a), pNext(next) {}
+    L1Item(T &a, void* next) : data(a), pNext((L1Item<T>*)next) {}
     L1Item(T &&a) : data(std::move(a)), pNext(NULL) {}
-    L1Item(T &&a, void* next) : data(std::move(a)), pNext(next) {}
+    L1Item(T &&a, void* next) : data(std::move(a)), pNext((L1Item<T>*)next) {}
 };
 
 template <class T>
@@ -79,23 +79,131 @@ class L1List : public List<T> {
     size_t      _size;
 public:
     L1List() : _pHead(NULL), _size(0) {}
-    ~L1List();
+    ~L1List(){clean();};
 
-    void    clean();
-    void    clone(void*);
+    // TODO: Code
+    void    clean(){
+        while(_pHead){
+            L1Item<T> *p = _pHead;
+            _pHead = _pHead->pNext;
+            delete p;
+            p = NULL;
+        }
+    }
+
+    // TODO: Code
+    void    clone(void*){
+        return;
+    }
+
     bool    isEmpty() { return _pHead == NULL; }
     size_t  getSize() { return _size; }
 
-    T&      at(int i);
-    T&      operator[](int i);
+    // TODO: Code
+    T&      at(int i){
+        if(i < 0 || i > _size) throw -1;
+        L1Item<T> *p = _pHead;
+        while(i > 0){
+            p = p->pNext;
+            i--;
+        }
+        return p->data;
+    }
 
-    bool    find(T& a, int& idx);
-    T*      find(T& a);
-    T*      find(T& a, std::function<bool (T&, T&)> eqCmp);//bool (*eqCmp)(T&, T&));
-    int     insert(int i, T& a);
-    int     insert(int i, T&& a);
-    int     remove(int i);
-    int     remove(T& a, std::function<bool (T&, T&)> eqCmp);
+    // TODO: Code
+    T&      operator[](int i){
+        if(i < 0 || i > _size) throw -1;
+        L1Item<T> *p = _pHead;
+        while(i > 0){
+            p = p->pNext;
+            i--;
+        }
+        return p->data;
+    }
+
+    // TODO: Code
+    bool    find(T& a, int& idx){
+        L1Item<T> *p = _pHead;
+        idx = 0;
+        while(p){
+            if(p->data == a){
+                return true;
+            }
+            idx++;
+            p = p->pNext;
+        }
+        return false;
+    }
+
+    // TODO: Code
+    T*      find(T& a){
+        L1Item<T> *p = _pHead;
+        while(p){
+            if(p->data == a){
+                return &p->data;
+            }
+            p = p->pNext;
+        }
+        throw -1;
+    }
+
+    // TODO: Code
+    T*      find(T& a, bool (*eqCmp)(T&, T&)){
+        L1Item<T> *p = new L1Item<T>(a);
+        return &p->data;
+    }
+    
+    // TODO: Code
+    int     insert(int i, T& a){
+        if(i == 0) return insertHead(a);
+        L1Item<T> *pPre = _pHead;
+        L1Item<T> *pCur = pPre->pNext;
+        while(i > 1){
+            i--;
+            pPre = pCur;
+            pCur = pCur->pNext;
+        }
+        pPre->pNext = new L1Item<T>(a, pCur);
+        _size++;
+        return 0;
+    }
+
+    // TODO: Code
+    int     insert(int i, T&& a){
+        if(i == 0) return insertHead(a);
+        L1Item<T> *pPre = _pHead;
+        L1Item<T> *pCur = pPre->pNext;
+        while(i > 1){
+            i--;
+            pPre = pCur;
+            pCur = pCur->pNext;
+        }
+        pPre->pNext = new L1Item<T>(std::move(a), pCur);
+        _size++;
+        return 0;
+    }
+
+    // TODO: Code
+    int     remove(int i){
+        if(i == 0) return removeHead();
+        L1Item<T> *pPre = _pHead;
+        L1Item<T> *pCur = pPre->pNext;
+        while(i > 1){
+            i--;
+            pPre = pCur;
+            pCur = pCur->pNext;
+        }
+        pPre->pNext = pCur->pNext;
+        delete pCur;
+        pCur = NULL;
+        _size--;
+        return 0;
+    }
+
+    // TODO: Code
+    int     remove(T& a, bool (*eqCmp)(T&, T&)){
+        return 1;
+    }
 
     int     push_back(T& a);
     int     push_back(T&& a);
@@ -104,17 +212,28 @@ public:
     int     removeHead();
     int     removeLast();
 
-    void    reverse();
+    // TODO: Code
+    void    reverse(){
+        L1Item<T> *pPre = NULL;
+        L1Item<T> *pCur = _pHead;
+        L1Item<T> *pNex = NULL;
+        while(pCur){
+            pNex = pCur->pNext;
+            pCur->pNext = pPre;
+            pPre = pCur;
+            pCur = pNex;
+        }
+        _pHead = pPre;
+    }
 
-    void    traverse(std::function<void (T&)> op) {
+    void    traverse(void (*op)(T&)) {
         L1Item<T>   *p = _pHead;
         while (p) {
             op(p->data);
             p = p->pNext;
         }
     }
-    //void    traverse(void (*op)(T&, void*), void* pParam) {
-    void    traverse(std::function<void (T&, void*)> op, void* pParam) {
+    void    traverse(void (*op)(T&, void*), void* pParam) {
         L1Item<T>   *p = _pHead;
         while (p) {
             op(p->data, pParam);
@@ -245,7 +364,12 @@ public:
     void traverseLRN(void (*op)(T&)) { traverseLRN(_pRoot, op); }
 
 protected:
-    void destroy(AVLNode<T>* &pR);
+    void destroy(AVLNode<T>* &pR){
+        if(pR == NULL) return;
+        destroy(pR->_pLeft);
+        destroy(pR->_pRight);
+        delete pR;
+    };
     bool find(AVLNode<T> *pR, T& key, T* &ret);
     bool insert(AVLNode<T>* &pR, T& a);
     bool remove(AVLNode<T>* &pR, T& a);
@@ -254,7 +378,9 @@ protected:
     void traverseLRN(AVLNode<T> *pR, void (*op)(T&));
 
     void rotLeft(AVLNode<T>* &pR);
-    void rotRight(AVLNode<T>* &pR);
+    void rotRight(AVLNode<T>* &pR){
+        
+    };
     void rotLR(AVLNode<T>* &pR);
     void rotRL(AVLNode<T>* &pR);
 
