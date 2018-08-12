@@ -149,8 +149,14 @@ public:
 
     // TODO: Code
     T*      find(T& a, bool (*eqCmp)(T&, T&)){
-        L1Item<T> *p = new L1Item<T>(a);
-        return &p->data;
+        L1Item<T> *p = _pHead;
+        while(p){
+            if(p->data == a){
+                return &p->data;
+            }
+            p = p->pNext;
+        }
+        throw -1;
     }
     
     // TODO: Code
@@ -202,7 +208,21 @@ public:
 
     // TODO: Code
     int     remove(T& a, bool (*eqCmp)(T&, T&)){
-        return 1;
+        if(_pHead->data == a) return removeHead();
+        L1Item<T> *pPre = _pHead;
+        L1Item<T> *pCur = pPre->pNext;
+        while(pCur){
+            if(pCur->data == a){
+                pPre->pNext = pCur->pNext;
+                delete pCur;
+                pCur = NULL;
+                _size--;
+                return 0;
+            }
+            pPre = pCur;
+            pCur = pCur->pNext;
+        }
+        return -1;
     }
 
     int     push_back(T& a);
@@ -364,29 +384,113 @@ public:
     void traverseLRN(void (*op)(T&)) { traverseLRN(_pRoot, op); }
 
 protected:
+
+    // TODO: Code
     void destroy(AVLNode<T>* &pR){
         if(pR == NULL) return;
         destroy(pR->_pLeft);
         destroy(pR->_pRight);
         delete pR;
-    };
-    bool find(AVLNode<T> *pR, T& key, T* &ret);
-    bool insert(AVLNode<T>* &pR, T& a);
-    bool remove(AVLNode<T>* &pR, T& a);
-    void traverseNLR(AVLNode<T> *pR, void (*op)(T&));
-    void traverseLNR(AVLNode<T> *pR, void (*op)(T&));
-    void traverseLRN(AVLNode<T> *pR, void (*op)(T&));
+    }
 
-    void rotLeft(AVLNode<T>* &pR);
+    bool find(AVLNode<T> *pR, T& key, T* &ret);
+
+    // TODO: Code
+    bool insert(AVLNode<T>* &pR, T& a){
+        if(pR == NULL){
+            pR = new AVLNode<T>(a);
+            return true;
+        }
+        if(a < pR->data){
+            if(insert(pR->_pLeft, a) == false) return false;
+            if(pR->_bFactor == 0){
+                pR->_bFactor = -1;
+                return true;
+            }
+            if(pR->_bFactor == 1){
+                pR->_bFactor = 0;
+                return false;
+            }
+            if(pR->_bFactor == -1){
+                rotRight(pR);
+                pR->_bFactor = 0;
+                pR->_pRight->_bFactor = 0;
+                return false;
+            }
+        }
+        rotLeft(pR);
+        if(pR->_bFactor == -1){
+            pR->_bFactor = 0;
+            pR->_pLeft->_bFactor = 0;
+            pR->_pRight->_bFactor = 1;
+            return false;
+        }
+        if(pR->_bFactor = 1){
+            pR->_bFactor = 0;
+            pR->_pRight->_bFactor = 0;
+            pR->_pLeft->_bFactor = -1;
+            return false;
+        }
+    }
+
+    // TODO: Code
+    bool remove(AVLNode<T>* &pR, T& a){
+
+    }
+
+    // TODO: Code
+    void traverseNLR(AVLNode<T> *pR, void (*op)(T&)){
+        op(pR->data);
+        if(pR->_pLeft) traverseNLR(pR->_pLeft, op);
+        if(pR->_pRight) traverseNLR(pR->_pRight, op);
+    }
+
+    // TODO: Code
+    void traverseLNR(AVLNode<T> *pR, void (*op)(T&)){
+        if(pR->_pLeft) traverseNLR(pR->_pLeft, op);
+        op(pR->data);
+        if(pR->_pRight) traverseNLR(pR->_pRight, op);
+    }
+
+    // TODO: Code
+    void traverseLRN(AVLNode<T> *pR, void (*op)(T&)){
+        if(pR->_pLeft) traverseNLR(pR->_pLeft, op);
+        if(pR->_pRight) traverseNLR(pR->_pRight, op);
+        op(pR->data);
+    }
+
+    // TODO: Code
+    void rotLeft(AVLNode<T>* &pR){
+        if(pR == NULL) return;
+        AVLNode<T> *p = pR->_pRight;
+        pR->_pRight = p->_pLeft;
+        p->_pLeft = pR;
+        pR = p;
+    }
+
+    // TODO: Code
     void rotRight(AVLNode<T>* &pR){
-        
-    };
-    void rotLR(AVLNode<T>* &pR);
-    void rotRL(AVLNode<T>* &pR);
+        if(pR == NULL) return;
+        AVLNode<T> *p = pR->_pLeft;
+        pR->_pLeft = p->_pRight;
+        p->_pRight = pR;
+        pR = p;
+    }
+
+    // TODO: Code
+    void rotLR(AVLNode<T>* &pR){
+        rotLeft(pR->_pLeft);
+        rotRight(pR);
+    }
+
+    // TODO: Code
+    void rotRL(AVLNode<T>* &pR){
+        rotRight(pR->_pRight);
+        rotLeft(pR);
+    }
 
     bool balanceLeft(AVLNode<T>* &pR);
     bool balanceRight(AVLNode<T>* &pR);
 };
-
 
 #endif //A02_DSALIB_H

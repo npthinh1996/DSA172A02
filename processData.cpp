@@ -24,6 +24,53 @@ bool processRequest(VRequest& request, L1List<VRecord>& recList, void* pGData) {
 
     /// NOTE: The output of the request will be printed on one line
     /// end by the end-line '\n' character.
+    string req = request.code;
+    cout<<req<<": ";
+
+    // TODO: Kiểm tra thiết bị ID có đi qua vị trí R trên trục y không
+    if(req.substr(0,3) == "CYR"){
+        cout<<"Yes"<<endl;
+    }
+
+    // TODO: Kiểm tra thiết bị ID có đi qua vị trí R trên trục x không
+    if(req.substr(0,3) == "CXR"){
+        cout<<"Yes"<<endl;
+    }
+
+    // TODO: Tìm số lượng record của thiết bị ID ở gần vị trí R trên trục y
+    if(req.substr(0,3) == "NYR"){
+        cout<<"0"<<endl;
+    }
+
+    // TODO: Tìm số lượng record của thiết bị ID ở gần vị trí R trên trục x
+    if(req.substr(0,3) == "NXR"){
+        cout<<"0"<<endl;
+    }
+
+    // TODO: Tìm số lần thiết bị ID đi qua vị trí R
+    if(req.substr(0,3) == "NPR"){
+        cout<<"0"<<endl;
+    }
+
+    // TODO: Tìm số thiết bị có hành trình đi qua vị trí R
+    if(req.substr(0,3) == "NVP"){
+        cout<<"0"<<endl;
+    }
+    
+    // TODO: Tìm số record nằm gần vị trí R
+    if(req.substr(0,3) == "NRR"){
+        cout<<"0"<<endl;
+    }
+
+    // TODO: Kiểm tra xem thiết bị ID có hành trình đi qua vị trí R không
+    if(req.substr(0,3) == "CVP"){
+        cout<<"Yes"<<endl;
+    }
+
+    // TODO: Tìm số lượng record của thiết bị ID nằm gần vị trí R
+    if(req.substr(0,3) == "NRP"){
+        cout<<"0"<<endl;
+    }
+
     return true;
 }
-
